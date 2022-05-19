@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,10 +15,12 @@ import java.util.Scanner;
 public class Bot {
 
   private List<Pokemon> listedPokemon;
+  private List<String> pokemonNames;
   private Map<String, Integer> rankedPokemon;
 
   public Bot() {
     this.listedPokemon = new ArrayList<Pokemon>();
+    pokemonNames = new ArrayList<String>();
     rankedPokemon = new HashMap<String, Integer>();
   }
 
@@ -25,7 +28,15 @@ public class Bot {
     Iterator<Pokemon> it = listedPokemon.iterator();
     while (it.hasNext()) {
       Pokemon pokemon = it.next();
-      System.out.println(pokemon.getName() + " Usage%: " + pokemon.getUsage());
+      System.out.println(pokemon.getName() + " Usage: " + pokemon.getUsage() + "%");
+    } 
+  }
+
+  public void printPokemonDetails() {
+    Iterator<Pokemon> it = listedPokemon.iterator();
+    while (it.hasNext()) {
+      Pokemon pokemon = it.next();
+      System.out.println(pokemon.getName() + " " + pokemon.getDetails());
     } 
   }
 
@@ -50,6 +61,8 @@ public class Bot {
           
           if (Character.isDigit(line.charAt(3))) { // check if the line we are on contains a pokemon
             name = getName(line);
+            if (name.contains("Silvally") || name.contains("Type Null") || name.equals("Arrokuda")) continue;
+            pokemonNames.add(name);
             usage = getUsage(line);
             Pokemon pokemon = new Pokemon(name, usage);
             
@@ -57,6 +70,37 @@ public class Bot {
           }
       }
       in.close();
+
+      Scanner myObj2 = new Scanner(System.in);   
+      System.out.println("Enter filepath for data set csv:");
+      //String usageStats = myObj2.nextLine(); // Read user input
+      
+      // TEMPORARY, REMOVE ME!!!!!!!
+      String dataSet = "D:\\Downloads\\Pokemon Database.csv";
+       
+      // read text returned by server
+      BufferedReader in2 = new BufferedReader(new FileReader(dataSet));
+       
+      String line2;
+      while ((line2 = in2.readLine()) != null) {
+          StringBuilder builder = new StringBuilder(line2);
+          for (int i = 0; i < builder.length(); i++) {
+            if (builder.charAt(i) == '"') {
+              builder.deleteCharAt(i);
+              i--;
+            }
+            if (builder.charAt(i) == ',' && builder.charAt(i + 1) == ' ') {
+              builder.deleteCharAt(i);
+              i--;
+            } 
+          }
+          line2 = builder.toString();
+          String[] columns = line2.split(",");      
+          if (validPokemon(columns)) {
+              initializeDetails(columns);
+            };
+          }
+      in2.close();
        
   }
   catch (MalformedURLException e) {
@@ -68,18 +112,89 @@ public class Bot {
 
   }
 
-  // returns all letters and '-' characters in the line argument
-  public String getName(String line) {
-    String result = "";
+  public void initializeDetails(String[] columns) throws Exception {
+    String fullname = columns[2];
+    Iterator<Pokemon> it = listedPokemon.iterator();
 
-    for (int i = 0; i < line.length(); i++) {
-      char currentChar = line.charAt(i);
-      if (Character.isLetter(currentChar) || currentChar == '-') {
-        result += currentChar;
+    if (!columns[4].contains("NULL")) {  
+      if (columns[4].contains(" ")) {
+        StringBuilder builder2 = new StringBuilder(columns[4]);
+        builder2.delete(builder2.indexOf(" "), builder2.length());
+        System.out.println(builder2.toString());
+        while(it.hasNext()) {
+          Pokemon pokemon = it.next();
+          if (pokemon.getName().contains(fullname) && pokemon.getName().contains(builder2.toString())) {
+            pokemon.setupPokemon(columns);
+            break;
+        }
+      }
+      } else {
+        fullname = (fullname + "-" + columns[4]);
+        if (fullname.contains("Indeedee")) fullname = "Indeedee-F";
+        while(it.hasNext()) {
+          Pokemon pokemon = it.next();
+          if (pokemon.getName().equals(fullname)) {
+            pokemon.setupPokemon(columns);
+            break;
+          }
+        }
+      } 
+    } else {           
+      while(it.hasNext()) {
+        Pokemon pokemon = it.next();
+        if (pokemon.getName().equals(fullname)) {
+          pokemon.setupPokemon(columns);
+          break;
+        }
       }
     }
 
+  }
+
+  public boolean validPokemon(String[] line) {
+    boolean result = true;
+
+    // Excludes pokemon not in the usage stats, mega forms, mythicals, etc. stuff not allowed in VGC
+    if (!pokemonNames.contains(line[2]) || line[4].contains("Mega") || line[4].contains("Starter")
+      || line[4].contains("Eternamax") || line[6].contains("Mythical")) {
+      result = false;
+    }
+
     return result;
+  }
+
+  // returns all letters and '-' characters in the line argument
+  public String getName(String line) {
+    String result = "";
+    int counter = 0;
+
+    for (int i = 0; i < line.length(); i++) {
+      char currentChar = line.charAt(i);
+
+      if (currentChar == '|') counter++;
+
+      if (counter == 2) {
+        if (Character.isLetter(currentChar) || currentChar == '-' || currentChar == '.'
+          || currentChar == ' ' || Character.isDigit(currentChar) 
+          || currentChar == '\'' || currentChar == '%') {
+        result += currentChar;
+      }
+      }
+      
+    }
+
+    StringBuilder builder = new StringBuilder(result);
+    builder.deleteCharAt(0);
+
+    for (int i = builder.length() - 1; i >= 0; i--) {
+      if (builder.charAt(i) == ' ') {
+        builder.deleteCharAt(i);
+      } else {
+        break;
+      }
+    }
+
+    return builder.toString();
   }
 
   public double getUsage(String line) {
