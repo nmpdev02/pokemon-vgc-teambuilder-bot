@@ -7,14 +7,17 @@ import java.util.Scanner;
 
 public class Pokemon {
 
-    private String name, type1, type2, ability1, ability2, hiddenAbility;
+    private String name, ability1, ability2, hiddenAbility;
     private int hp, attack, defense, spattack, spdefense, speed, rbst;
     private double usage;
-    private boolean physicalAttacker, restricted;
+    private boolean physicalAttacker, gmax, restricted;
+    private Type[] types;
+    private CommonSet set;
 
     public Pokemon(String name, double usage) {
       this.name = name;
       this.usage = usage;
+      types = new Type[2];
     }
 
     public void setupPokemon(String[] line) throws Exception {
@@ -25,8 +28,8 @@ public class Pokemon {
       } else this.restricted = false;
 
       // Set primary and secondary types
-      this.type1 = line[9];
-      this.type2 = line[10];
+      this.types[0] = setType(line[9]);
+      this.types[1] = setType(line[10]);
 
       // Set ability 1, 2, and hidden ability
       this.ability1 = line[11];
@@ -79,11 +82,11 @@ public class Pokemon {
     public String getDetails() {
       String result = "";
 
-      if (this.type1 != null) {
-      if (this.type2.equals("NULL")) {
-        result += ("Type: " + this.type1 + " ");
+      if (this.types[0] != null) {
+      if (this.types[1] == null) {
+        result += ("Type: " + this.types[0].getName() + " ");
       } else {
-        result += ("Types: " + this.type1 + ", " + this.type2 + " ");
+        result += ("Types: " + this.types[0].getName() + ", " + this.types[1].getName() + " ");
       }
 
       if (ability2.equals("NULL") && hiddenAbility.equals("NULL")) {
@@ -98,5 +101,147 @@ public class Pokemon {
     }
       return result;
     }
+
+    public int statPoints() {
+      return (this.rbst + this.speed);
+    }
+    
+    public int calculateDamage(Pokemon pokemon, Pokemon opponent, Attack attack) {
+      int result = 0, attackingStat, defendingStat, AD;
+      double STAB = 0;
   
+      if (attack.getPower() == 0) {
+          return 100;
+      }
+  
+      if (this.physicalAttacker) {
+          attackingStat = pokemon.attack;
+          defendingStat = opponent.defense;
+      } else { 
+          attackingStat = pokemon.spattack;
+          defendingStat = opponent.spdefense;
+      }
+  
+      AD = (attackingStat/defendingStat);
+      if (checkSTAB(attack)) {
+          if (pokemon.set.getAbility().getName() == "Adaptability") {
+              STAB = 2;
+          } else STAB = 1.5;
+      }
+  
+  
+      return result;
   }
+  
+  public double offensivePotential(Pokemon pokemon, Pokemon opponent) {
+      double result = 0.0;
+  
+      Attack[] moveSet = pokemon.set.getMoveSet();
+  
+      for (int i = 0; i < moveSet.length; i++) {
+          result += calculateDamage(pokemon, opponent, moveSet[i]);
+      }
+  
+      return result;
+  }
+
+  public double gmaxPoints(Pokemon pokemon) {
+    if (pokemon.gmax == true) {
+        return 100.0;
+    } else return 0;
+}
+
+public Type setType(String type) {
+  switch (type) {
+    case ("Normal"):
+      return Type.NORMAL;
+    case ("Fire"):
+      return Type.FIRE;
+    case ("Water"):
+      return Type.WATER;
+    case ("Electric"):
+      return Type.ELECTRIC;
+    case ("Grass"):
+      return Type.GRASS;
+    case ("Ice"):
+      return Type.ICE;
+    case ("Fighting"):
+      return Type.FIGHTING;
+    case ("Poison"):
+      return Type.POISON;
+    case ("Ground"):
+      return Type.GROUND;
+    case ("Flying"):
+      return Type.FLYING;
+    case ("Psychic"):
+      return Type.PSYCHIC;
+    case ("Bug"):
+      return Type.BUG;
+    case ("Rock"):
+      return Type.ROCK;
+    case ("Ghost"):
+      return Type.GHOST;
+    case ("Dragon"):
+      return Type.DRAGON;
+    case ("Dark"):
+      return Type.DARK;
+    case ("Steel"):
+      return Type.STEEL;
+    case ("Fairy"):
+      return Type.FAIRY;
+    default:
+      return null;
+  }
+}
+
+public boolean checkSTAB(Attack attack) {
+    if (this.types[0].equals(attack.getType()) && attack.getPower() > 0) {
+        return true;
+    } else if (this.types[1].equals(attack.getType()) && attack.getPower() > 0) {
+        return true;
+    } else return false;
+}
+
+public double checkWeakness(Attack attack, Pokemon opponent) {
+    double result = 1;
+
+    if (opponent.types[1] == null) {
+        result *= attack.getType().getSpecificWeaknessMultiplier(opponent.types[0]);
+    } else result *= attack.getType().calcDualTypeWeakness(opponent.types[0], opponent.types[1]);
+
+    return result;
+}
+
+public double calculatePoints(Pokemon opponent) {
+  double result = 0;
+
+
+
+  return result;
+}
+
+public int getHP() {
+  return this.hp;
+}
+
+public int getAttack() {
+  return this.attack;
+}
+
+public int getDefense() {
+  return this.defense;
+}
+  
+public int getSpattack() {
+  return this.spattack;
+}
+
+public int getSpdefense() {
+  return this.spdefense;
+}
+
+public int getSpeed() {
+  return this.speed;
+}
+
+}

@@ -16,13 +16,76 @@ public class Bot {
 
   private List<Pokemon> listedPokemon;
   private List<String> pokemonNames;
+  private List<Attack> allAttacks;
   private Map<String, Integer> rankedPokemon;
 
   public Bot() {
     this.listedPokemon = new ArrayList<Pokemon>();
     pokemonNames = new ArrayList<String>();
+    allAttacks = new ArrayList<Attack>();
     rankedPokemon = new HashMap<String, Integer>();
   }
+
+  public void initializeAttacks() throws Exception {
+    if (allAttacks != null) {
+
+        try {
+
+            URL url = new URL("https://pokemondb.net/move/all");
+
+            // read text returned by server
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+            String line;
+            int lineNumber = 0;
+            while ((line = in.readLine()) != null) {
+                if (lineNumber > 203) {
+                    line = cleanTextContent(line);
+                    Attack attack = new Attack();
+                    if (line.contains("cell-name")) {
+                        attack.setNamePowerAccuracy(line);
+
+                        lineNumber ++;
+                        line = in.readLine();
+                        lineNumber++;
+                        line = in.readLine();
+
+                        attack.setEffect(line);
+                        attack.setUtility();
+                        allAttacks.add(attack);
+                    }
+                }
+                lineNumber++;
+
+            }
+            in.close();
+
+        }
+        catch (MalformedURLException e) {
+            System.out.println("Malformed URL: " + e.getMessage());
+        }
+        catch (IOException e) {
+            System.out.println("I/O Error: " + e.getMessage());
+        }
+
+    }
+}
+
+public void printAttacks() {
+  Iterator<Attack> it = allAttacks.iterator();
+  while(it.hasNext()) {
+    Attack attack = it.next();
+    System.out.println(attack.getName());
+  }
+}
+
+public void printAttacksDetails() {
+  Iterator<Attack> it = allAttacks.iterator();
+  while(it.hasNext()) {
+    Attack attack = it.next();
+    System.out.println(attack.getName() + " power: " + attack.getPower() + ", accuracy: " + attack.getAccuracy());
+  }
+}
 
   public void printPokemon() {
     Iterator<Pokemon> it = listedPokemon.iterator();
@@ -120,7 +183,6 @@ public class Bot {
       if (columns[4].contains(" ")) {
         StringBuilder builder2 = new StringBuilder(columns[4]);
         builder2.delete(builder2.indexOf(" "), builder2.length());
-        System.out.println(builder2.toString());
         while(it.hasNext()) {
           Pokemon pokemon = it.next();
           if (pokemon.getName().contains(fullname) && pokemon.getName().contains(builder2.toString())) {
@@ -220,6 +282,28 @@ public class Bot {
     return result;
   }
 
+  private static String cleanTextContent(String text) {
+      // strips off all non-ASCII characters
+      text = text.replaceAll("[^\\x00-\\x7F]", "");
+
+      // erases all the ASCII control characters
+      text = text.replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "");
+
+      // removes non-printable characters from Unicode
+      text = text.replaceAll("\\p{C}", "");
+
+      text = text.replaceAll("[^ -~]","");
+
+      text = text.replaceAll("[^\\p{ASCII}]", "");
+
+      text = text.replaceAll("\\\\x\\p{XDigit}{2}", "");
+
+      text = text.replaceAll("\\n","");
+
+      text = text.replaceAll("[^\\x20-\\x7e]", "");
+
+      return text.trim();
+    }
 
 
 }
