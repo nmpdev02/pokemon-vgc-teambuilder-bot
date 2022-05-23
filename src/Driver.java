@@ -4,6 +4,7 @@ public class Driver {
 
     Bot bot = new Bot();
     bot.initializeAttacks();
+    bot.printAttacksDetails();
     bot.createPokemon();
     bot.printPokemonDetails();
 

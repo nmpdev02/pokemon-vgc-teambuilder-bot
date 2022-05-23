@@ -51,6 +51,38 @@ public class Pokemon {
       } else this.rbst = (Integer.parseInt(line[30]) - this.attack);
       
     }
+
+    public void createSet() {
+      Item item;
+
+      try {
+
+        URL url = new URL("https://www.pikalytics.com/pokedex/ss/" + this.name);
+
+        // read text returned by server
+        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+
+        String line;
+        while ((line = in.readLine()) != null) {
+          // First, create the move set
+          if (line.endsWith("Item")) {
+            for (int i = 0; i < 11; i++) {
+              line = in.readLine();
+            }
+            item = setItem(line);
+          }
+        }
+        in.close();
+
+    }
+    catch (MalformedURLException e) {
+        System.out.println("Malformed URL: " + e.getMessage());
+    }
+    catch (IOException e) {
+        System.out.println("There is no set for this Pokemon");
+    }
+
+    }
   
     public void setPhysicalAttacker() {
   
@@ -107,46 +139,59 @@ public class Pokemon {
     }
     
     public int calculateDamage(Pokemon pokemon, Pokemon opponent, Attack attack) {
-      int result = 0, attackingStat, defendingStat, AD;
-      double STAB = 0;
+      int result = 0, attackingStat, defendingStat;
+      double STAB = 0, AD;
   
       if (attack.getPower() == 0) {
           return 100;
       }
   
       if (this.physicalAttacker) {
-          attackingStat = pokemon.attack;
-          defendingStat = opponent.defense;
+          attackingStat = pokemon.set.getAttackStat();
+          defendingStat = opponent.set.getDefenseStat();
       } else { 
-          attackingStat = pokemon.spattack;
-          defendingStat = opponent.spdefense;
+          attackingStat = pokemon.set.getSpattackStat();
+          defendingStat = opponent.set.getSpdefenseStat();
       }
   
       AD = (attackingStat/defendingStat);
+
       if (checkSTAB(attack)) {
-          if (pokemon.set.getAbility().getName() == "Adaptability") {
+          if (pokemon.types[0].equals(attack.getType()) || pokemon.types[1].equals(attack.getType())) {
+
+            if (pokemon.set.getAbility().getName().equals("Adaptability")) {
               STAB = 2;
-          } else STAB = 1.5;
+            } else STAB = 1.5;
+
+          } else STAB = 1;
       }
   
   
       return result;
   }
   
-  public double offensivePotential(Pokemon pokemon, Pokemon opponent) {
-      double result = 0.0;
-  
-      Attack[] moveSet = pokemon.set.getMoveSet();
+  public double offensivePotential(Pokemon opponent) {
+      Attack[] moveSet = this.set.getMoveSet();
+      double[] damage = new double[4];
   
       for (int i = 0; i < moveSet.length; i++) {
-          result += calculateDamage(pokemon, opponent, moveSet[i]);
+          damage[i] = calculateDamage(this, opponent, moveSet[i]);
       }
+
+      double max = 0;
+      for (int counter = 1; counter < damage.length; counter++) {
+
+        if (damage[counter] > max) {
+          max = damage[counter];
+        }   
+
+     }
   
-      return result;
+      return max;
   }
 
-  public double gmaxPoints(Pokemon pokemon) {
-    if (pokemon.gmax == true) {
+  public double gmaxPoints() {
+    if (this.gmax == true) {
         return 100.0;
     } else return 0;
 }
@@ -194,6 +239,95 @@ public Type setType(String type) {
   }
 }
 
+public Item setItem(String name) {
+
+  switch (name) {
+    case ("Babiri Berry"):
+      return Item.BABIRI;
+    case ("Charti Berry"):
+      return Item.CHARTI;
+    case ("Chilan Berry"):
+      return Item.CHILAN;
+    case ("Chople Berry"):
+      return Item.CHOPLE;
+    case ("Coba Berry"):
+      return Item.COBA;
+    case ("Colbur Berry"):
+      return Item.COLBUR;
+    case ("Haban Berry"):
+      return Item.HABAN;
+    case ("Kasib Berry"):
+      return Item.KASIB;
+    case ("Kebia Berry"):
+      return Item.KEBIA;
+    case ("Occa Berry"):
+      return Item.OCCA;
+    case ("Passho Berry"):
+      return Item.PASSHO;
+    case ("Payapa Berry"):
+      return Item.PAYAPA;
+    case ("Rindo Berry"):
+      return Item.RINDO;
+    case ("Roseli Berry"):
+      return Item.ROSELI;
+    case ("Shuca Berry"):
+      return Item.SHUCA;
+    case ("Tanga Berry"):
+      return Item.TANGA;
+    case ("Wacan Berry"):
+      return Item.WACAN;
+    case ("Yache Berry"):
+      return Item.YACHE;
+    case ("Thick Club"):
+      return Item.THICK_CLUB;
+    case ("Choice Band"):
+      return Item.CHOICE_BAND;
+    case ("Choice Specs"):
+      return Item.CHOICE_SPECS;
+    case ("Life Orb"):
+      return Item.LIFE_ORB;
+    case ("Mystic Water"):
+      return Item.MYSTIC_WATER;
+    case ("Charcoal"):
+      return Item.CHARCOAL;
+    case ("Miracle Seed"):
+      return Item.MIRACLE_SEED;
+    case ("Magnet"):
+      return Item.MAGNET;
+    case ("Pixie Plate"):
+      return Item.PIXIE_PLATE;
+    case ("Sharp Beak"):
+      return Item.SHARP_BEAK;
+    case ("Spell Tag"):
+      return Item.SPELL_TAG;
+    case ("Black Glasses"):
+      return Item.BLACK_GLASSES;
+    case ("Dragon Fang"):
+      return Item.DRAGON_FANG;
+    case ("Soft Sand"):
+      return Item.SOFT_SAND;
+    case ("Never-Melt Ice"):
+      return Item.NEVERMELT_ICE;
+    case ("Metal Coat"):
+      return Item.METAL_COAT;
+    case ("Hard Stone"):
+      return Item.HARD_STONE;
+    case ("Twisted Spoon"):
+      return Item.TWISTED_SPOON;
+    case ("Silver Powder"):
+      return Item.SILVER_POWDER;
+    case ("Black Belt"):
+      return Item.BLACK_BELT;
+    case ("Assault Vest"):
+      return Item.ASSAULT_VEST;
+    case ("Eviolite"):
+      return Item.EVIOLITE;
+    default:
+      return new Item(name, 1, 1, null);
+    }
+
+}
+
 public boolean checkSTAB(Attack attack) {
     if (this.types[0].equals(attack.getType()) && attack.getPower() > 0) {
         return true;
@@ -210,14 +344,6 @@ public double checkWeakness(Attack attack, Pokemon opponent) {
     } else result *= attack.getType().calcDualTypeWeakness(opponent.types[0], opponent.types[1]);
 
     return result;
-}
-
-public double calculatePoints(Pokemon opponent) {
-  double result = 0;
-
-
-
-  return result;
 }
 
 public int getHP() {

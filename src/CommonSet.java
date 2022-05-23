@@ -7,13 +7,12 @@ public class CommonSet {
   private Nature nature;
   private int[] EVs, stats;
 
-  public void commonSet() {
-    this.moveSet = new Attack[4];
-    this.ability = new Ability("adaptability");
-  }
-
-  public void createSet(Pokemon pokemon) {
-      initializeStats(pokemon);
+  public void commonSet(Attack[] moveSet, Ability ability, Item item, Nature nature, int[] EVs) {
+    this.moveSet = moveSet;
+    this.ability = ability;
+    this.item = item;
+    this.nature = nature;
+    this.EVs = EVs;
   }
 
   public void initializeStats(Pokemon pokemon) {
@@ -41,6 +40,22 @@ public class CommonSet {
 
   public Attack[] getMoveSet() {
     return this.moveSet;
+  }
+
+  public int getAttackStat() {
+    return stats[1];
+  }
+
+  public int getDefenseStat() {
+    return stats[2];
+  }
+
+  public int getSpattackStat() {
+    return stats[3];
+  }
+
+  public int getSpdefenseStat() {
+    return stats[4];
   }
 
 

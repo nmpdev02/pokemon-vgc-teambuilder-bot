@@ -18,33 +18,21 @@ public class Calculations {
     Iterator<Pokemon> it2 = listedPokemon.iterator();
     while(it1.hasNext()) {
       Pokemon pokemon = it1.next();
-      double value = 0;
+      double value = 0; // reset value for each new pokemon
+
       while(it2.hasNext()) {
+        double attacking, defending;
         Pokemon opponent = it2.next();
+        attacking = pokemon.offensivePotential(opponent);
+        defending = opponent.offensivePotential(pokemon);
+        value += (attacking / defending);
       }
+
+      rankedList.put(pokemon, value);
     }
 
     return rankedList;
   }
-
-  
-
-public double offensivePoints(Pokemon pokemon, ArrayList<Pokemon> listedPokemon) {
-    double result = 0.0;
-
-    Iterator<Pokemon> in = listedPokemon.iterator();
-    while (in.hasNext()) {
-        result += pokemon.offensivePotential(pokemon, in.next());
-    }
-
-    return result;
-}
-
-public double defensivePotential(Pokemon pokemon) {
-    double result = 0.0;
-
-    return result;
-}
 
 public double defensivePoints(Pokemon pokemon) {
     double result = 0.0;
