@@ -14,16 +14,42 @@ import java.util.Scanner;
 
 public class Bot {
 
-  private List<Pokemon> listedPokemon;
+  public static List<Pokemon> listedPokemon;
   private List<String> pokemonNames;
-  private List<Attack> allAttacks;
-  private Map<String, Integer> rankedPokemon;
+  public static List<Attack> allAttacks;
+  private Map<Pokemon, Double> rankedPokemon;
 
   public Bot() {
-    this.listedPokemon = new ArrayList<Pokemon>();
+    Bot.listedPokemon = new ArrayList<Pokemon>();
     pokemonNames = new ArrayList<String>();
-    allAttacks = new ArrayList<Attack>();
-    rankedPokemon = new HashMap<String, Integer>();
+    Bot.allAttacks = new ArrayList<Attack>();
+    rankedPokemon = new HashMap<Pokemon, Double>();
+  }
+
+  public void calculatePoints(ArrayList<Pokemon> listedPokemon) {
+    HashMap<Pokemon, Double> rankedList = new HashMap<Pokemon, Double>();
+
+    Iterator<Pokemon> it1 = listedPokemon.iterator();
+    Iterator<Pokemon> it2 = listedPokemon.iterator();
+    while(it1.hasNext()) {
+      Pokemon pokemon = it1.next();
+      double value = 0; // reset value for each new pokemon
+
+      while(it2.hasNext()) {
+        double attacking, defending;
+        Pokemon opponent = it2.next();
+        attacking = pokemon.offensivePotential(opponent);
+        defending = opponent.offensivePotential(pokemon);
+        value += (attacking / defending);
+      }
+
+      value += pokemon.gmaxPoints();
+      value += pokemon.statPoints();
+      
+      rankedList.put(pokemon, value);
+    }
+
+    this.rankedPokemon = rankedList;
   }
 
   public void initializeAttacks() throws Exception {
@@ -43,7 +69,7 @@ public class Bot {
                     line = cleanTextContent(line);
                     Attack attack = new Attack();
                     if (line.contains("cell-name")) {
-                        attack.setNamePowerAccuracy(line);
+                        attack.setDetails(line);
 
                         lineNumber ++;
                         line = in.readLine();
@@ -83,7 +109,9 @@ public void printAttacksDetails() {
   Iterator<Attack> it = allAttacks.iterator();
   while(it.hasNext()) {
     Attack attack = it.next();
-    System.out.println(attack.getName() + " power: " + attack.getPower() + ", accuracy: " + attack.getAccuracy());
+    if (attack != null && attack.getType() != null) {
+      System.out.println(attack.getName() +": " + attack.getType().getName() + ", power: " + attack.getPower() + ", accuracy: " + attack.getAccuracy());
+    }
   }
 }
 

@@ -13,6 +13,12 @@ public class Type {
 		name = n;
 		index = i;
 	}
+
+	public Type(String name) {
+		Type type = setType(name);
+		this.name = type.name;
+		this.index = type.index;
+	}
  
 	//2Darray for type weakness/resistance multipliers
 	//
@@ -45,24 +51,24 @@ public class Type {
  
 	//static types
  
-	public static final Type NORMAL = new Type("normal", 0);
-	public static final Type FIRE = new Type("fire", 1);
-	public static final Type WATER = new Type("water", 2);
-	public static final Type ELECTRIC = new Type("electric", 3);
-	public static final Type GRASS = new Type("grass", 4);
-	public static final Type ICE = new Type("ice", 5);
-	public static final Type FIGHTING = new Type("fighting", 6);
-	public static final Type POISON = new Type("poison", 7);
-	public static final Type GROUND = new Type("ground", 8);
-	public static final Type FLYING = new Type("flying", 9);
-	public static final Type PSYCHIC = new Type("psychic", 10);
-	public static final Type BUG = new Type("bug", 11);
-	public static final Type ROCK = new Type("rock", 12);
-	public static final Type GHOST = new Type("ghost", 13);
-	public static final Type DRAGON = new Type("dragon", 14);
-	public static final Type DARK = new Type("dark", 15);
-	public static final Type STEEL = new Type("steel", 16);
-	public static final Type FAIRY = new Type("fairy", 17);
+	public static final Type NORMAL = new Type("Normal", 0);
+	public static final Type FIRE = new Type("Fire", 1);
+	public static final Type WATER = new Type("Water", 2);
+	public static final Type ELECTRIC = new Type("Electric", 3);
+	public static final Type GRASS = new Type("Grass", 4);
+	public static final Type ICE = new Type("Ice", 5);
+	public static final Type FIGHTING = new Type("Fighting", 6);
+	public static final Type POISON = new Type("Poison", 7);
+	public static final Type GROUND = new Type("Ground", 8);
+	public static final Type FLYING = new Type("Flying", 9);
+	public static final Type PSYCHIC = new Type("Psychic", 10);
+	public static final Type BUG = new Type("Bug", 11);
+	public static final Type ROCK = new Type("Rock", 12);
+	public static final Type GHOST = new Type("Ghost", 13);
+	public static final Type DRAGON = new Type("Dragon", 14);
+	public static final Type DARK = new Type("Dark", 15);
+	public static final Type STEEL = new Type("Steel", 16);
+	public static final Type FAIRY = new Type("Fairy", 17);
  
 	//getters for Types
  

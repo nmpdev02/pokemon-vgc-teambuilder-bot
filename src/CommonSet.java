@@ -7,7 +7,7 @@ public class CommonSet {
   private Nature nature;
   private int[] EVs, stats;
 
-  public void commonSet(Attack[] moveSet, Ability ability, Item item, Nature nature, int[] EVs) {
+  public CommonSet(Attack[] moveSet, Ability ability, Item item, Nature nature, int[] EVs) {
     this.moveSet = moveSet;
     this.ability = ability;
     this.item = item;
@@ -15,13 +15,22 @@ public class CommonSet {
     this.EVs = EVs;
   }
 
-  public void initializeStats(Pokemon pokemon) {
+  public void initializeStats(Pokemon pokemon) throws NullPointerException {
+
+    try {
       this.stats[0] = (pokemon.getHP() + 75 + calculateEVs(EVs[0]));
       this.stats[1] = (pokemon.getAttack() + 20 + calculateEVs(EVs[1]));
       this.stats[2] = (pokemon.getDefense() + 20 + calculateEVs(EVs[2]));
       this.stats[3] = (pokemon.getSpattack() + 20 + calculateEVs(EVs[3]));
       this.stats[4] = (pokemon.getSpdefense() + 20 + calculateEVs(EVs[4]));
       this.stats[5] = (pokemon.getSpeed() + 20 + calculateEVs(EVs[5]));
+      for (int i = 0; i <= 5; i++) {
+        this.stats[i] *= this.nature.getModifiers()[i];
+      }
+    }
+    catch (NullPointerException e) {
+        System.out.println("NULL POINTER EXCEPTION " + e.getMessage());
+    }
   }
 
   public int calculateEVs(int EVs) {

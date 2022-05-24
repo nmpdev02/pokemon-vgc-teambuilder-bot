@@ -4,6 +4,8 @@ public class Item {
   private double damageBoost, defenseBoost;
   private Type type;
 
+  public Item() {}
+
   public Item(String name) {
     this.name = name;
   }
@@ -41,8 +43,11 @@ public class Item {
   public static final Item CHOICE_SPECS = new Item("Choice Specs", 1.5, 1, null);
   public static final Item LIFE_ORB = new Item("Life Orb", 1.3, 1, null);
   public static final Item MYSTIC_WATER = new Item("Mystic Water", 1.2, 1, Type.WATER);
+  public static final Item SEA_INCENSE = new Item("Sea Incense", 1.2, 1, Type.WATER);
+  public static final Item WAVE_INCENSE = new Item("Wave Incense", 1.2, 1, Type.WATER);
   public static final Item CHARCOAL = new Item("Charcoal", 1.2, 1, Type.FIRE);
   public static final Item MIRACLE_SEED = new Item("Miracle Seed", 1.2, 1, Type.GRASS);
+  public static final Item ROSE_INCENSE = new Item("Rose Incense", 1.2, 1, Type.GRASS);
   public static final Item MAGNET = new Item("Magnet", 1.2, 1, Type.ELECTRIC);
   public static final Item PIXIE_PLATE = new Item("Pixie Plate", 1.2, 1, Type.FAIRY);
   public static final Item SHARP_BEAK = new Item("Sharp Beak", 1.2, 1, Type.FLYING);
@@ -56,6 +61,8 @@ public class Item {
   public static final Item TWISTED_SPOON = new Item("Twisted Spoon", 1.2, 1, Type.PSYCHIC);
   public static final Item SILVER_POWDER = new Item("Silver Powder", 1.2, 1, Type.BUG);
   public static final Item BLACK_BELT = new Item("Black Belt", 1.2, 1, Type.FIGHTING);
+  public static final Item POISON_BARB = new Item("Poison Barb", 1.2, 1, Type.POISON);
+  public static final Item SILK_SCARF = new Item("Silk Scarf", 1.2, 1, Type.NORMAL);
   
   /* Other Iteams */
   public static final Item ASSAULT_VEST = new Item("Assault Vest");

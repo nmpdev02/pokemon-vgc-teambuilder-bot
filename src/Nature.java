@@ -2,6 +2,8 @@ public class Nature {
  
 	private String name;
 	private double[] modifiers = {1, 1, 1, 1, 1, 1};
+
+    public Nature() {}
  
 	public Nature(String name) {
         this.name = name;
