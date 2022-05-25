@@ -67,5 +67,9 @@ public class Item {
   /* Other Iteams */
   public static final Item ASSAULT_VEST = new Item("Assault Vest");
   public static final Item EVIOLITE = new Item("Eviolite");
+  
+  public String getName() {
+    return this.name;
+  }
 
 }
