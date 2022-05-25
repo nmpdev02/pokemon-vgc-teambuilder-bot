@@ -255,19 +255,19 @@ public class Pokemon {
       return (this.rbst + this.speed);
     }
     
-    public int calculateDamage(Pokemon pokemon, Pokemon opponent, Attack attack) {
-      int result = 0, attackingStat, defendingStat;
-      double STAB = 0, AD;
+    public int calculateDamage(Pokemon opponent, Attack attack) {
+      int attackingStat, defendingStat;
+      double STAB, AD, result = 0;
   
       if (attack.getPower() == 0) {
           return 100;
       }
   
       if (this.physicalAttacker) {
-          attackingStat = pokemon.set.getAttackStat();
+          attackingStat = this.set.getAttackStat();
           defendingStat = opponent.set.getDefenseStat();
       } else { 
-          attackingStat = pokemon.set.getSpattackStat();
+          attackingStat = this.set.getSpattackStat();
           defendingStat = opponent.set.getSpdefenseStat();
       }
   
@@ -285,8 +285,66 @@ public class Pokemon {
           } else STAB = 1;
       }
   
-  
+      result = (((22 * attack.getPower() * AD)/50)+2) * STAB * spreadMove(attack.getName()) * 
+          itemMultiplier(this.getItem()) * abilityMultiplier(this.getAbility() * otherMultiplier(this));
+        
       return result;
+    }
+    
+  public double spreadMove(String attackName) {
+    switch (attackName) {
+        case ("Earthquake"):
+            return 0.75;
+        case ("Astral Barrage"):
+            return 0.75;
+        case ("Glacial Lance"):
+            return 0.75;
+        case ("Rock Slide"):
+            return 0.75;
+        case ("Surf"):
+            return 0.75;
+        case ("Muddy Water"):
+            return 0.75;
+        case ("Blizzard"):
+            return 0.75;
+        case ("Eruption"):
+            return 0.75;
+        case ("Brutal Swing"):
+            return 0.75;
+        case ("Water Spout"):
+            return 0.75;
+        case ("Precipice Blades"):
+            return 0.75;
+        case ("Origin Pulse"):
+            return 0.75;
+        case ("Bulldoze"):
+            return 0.75;
+        case ("Discharge"):
+            return 0.75;
+        case ("Heat Wave"):
+            return 0.75;
+        case ("Snarl"):
+            return 0.75;
+        case ("Clanging Scales"):
+            return 0.75;
+        case ("Dazzling Gleam"):
+            return 0.75;
+        case ("Dragon Energy"):
+            return 0.75;
+        case ("Thousand Arrows"):
+            return 0.75;
+        case ("Icy Wind"):
+            return 0.75;
+        case ("Thousand Waves"):
+            return 0.75;
+        case ("Overdrive"):
+            return 0.75;
+        case ("Burning Jealousy"):
+            return 0.75;
+        default:
+            return 1;
+    }
+   
   }
   
   public double offensivePotential(Pokemon opponent) {
