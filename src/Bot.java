@@ -6,11 +6,15 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.Map.Entry;
 
 public class Bot {
 
@@ -26,30 +30,79 @@ public class Bot {
     rankedPokemon = new HashMap<Pokemon, Double>();
   }
 
-  public void calculatePoints(ArrayList<Pokemon> listedPokemon) {
+  public void printRankedList() {
+
+    Set<Entry<Pokemon, Double>> entrySet = rankedPokemon.entrySet();
+
+    List<Entry<Pokemon, Double>> list = new ArrayList<>(entrySet);
+
+    Collections.sort(list, new Comparator<Entry<Pokemon, Double>>() {
+
+      @Override
+      public int compare(Entry<Pokemon, Double> o1, Entry<Pokemon, Double> o2) {
+        return o1.getValue().compareTo(o2.getValue());
+      }
+    });
+
+    list.forEach(entry->{
+      System.out.println(entry.getKey().getName() + ": " + entry.getValue() + " points");
+    });
+
+  }
+
+  public void calculatePoints(List<Pokemon> listedPokemon) {
     HashMap<Pokemon, Double> rankedList = new HashMap<Pokemon, Double>();
 
     Iterator<Pokemon> it1 = listedPokemon.iterator();
-    Iterator<Pokemon> it2 = listedPokemon.iterator();
+    List<Pokemon> temp = listedPokemon;
+    Iterator<Pokemon> it2 = temp.iterator();
+
     while(it1.hasNext()) {
       Pokemon pokemon = it1.next();
       double value = 0; // reset value for each new pokemon
 
+      it2 = temp.iterator();
+
+      if (pokemon.getName().equals("Fletchling")) {
+        break;
+      }
+
+      if (pokemon.getSet().getNature() == null || pokemon.getSet().getNature().getName() == null) continue;
+
       while(it2.hasNext()) {
         double attacking, defending;
         Pokemon opponent = it2.next();
-        attacking = pokemon.offensivePotential(opponent);
-        defending = opponent.offensivePotential(pokemon);
-        value += (attacking / defending);
+
+        if (opponent.getName().equals("Fletchling")) {
+          break;
+        }
+
+        if (pokemon.getSet().getNature() == null) {
+          continue;
+        }
+        if (opponent.getSet().getNature() == null || opponent.getSet().getNature().getName() == null) {
+          continue;
+        }
+
+        if (opponent.getName().equals("Ditto")) {
+          opponent = pokemon;
+        }
+        if (pokemon.getName().equals("Ditto")) {
+          pokemon = opponent;
+        }
+        attacking = (pokemon.offensivePotential(opponent) / opponent.getSet().getHPStat()); // Max damage pokemon can do to opponent
+        defending = (opponent.offensivePotential(pokemon) / pokemon.getSet().getHPStat()); // Max damage opponent can do to pokemon
+        if (defending == 0) defending = 1;
+        value += ((attacking / defending) * opponent.getUsage());
       }
 
-      value += pokemon.gmaxPoints();
       value += pokemon.statPoints();
       
       rankedList.put(pokemon, value);
     }
 
     this.rankedPokemon = rankedList;
+    this.printRankedList();
   }
 
   public void initializeAttacks() throws Exception {
@@ -162,37 +215,16 @@ public void printAttacksDetails() {
       }
       in.close();
 
-      Scanner myObj2 = new Scanner(System.in);   
-      System.out.println("Enter filepath for data set csv:");
-      //String usageStats = myObj2.nextLine(); // Read user input
-      
-      // TEMPORARY, REMOVE ME!!!!!!!
-      String dataSet = "D:\\Downloads\\Pokemon Database.csv";
-       
-      // read text returned by server
-      BufferedReader in2 = new BufferedReader(new FileReader(dataSet));
-       
-      String line2;
-      while ((line2 = in2.readLine()) != null) {
-          StringBuilder builder = new StringBuilder(line2);
-          for (int i = 0; i < builder.length(); i++) {
-            if (builder.charAt(i) == '"') {
-              builder.deleteCharAt(i);
-              i--;
-            }
-            if (builder.charAt(i) == ',' && builder.charAt(i + 1) == ' ') {
-              builder.deleteCharAt(i);
-              i--;
-            } 
-          }
-          line2 = builder.toString();
-          String[] columns = line2.split(",");      
-          if (validPokemon(columns)) {
-              initializeDetails(columns);
-            };
-          }
-      in2.close();
-       
+      Iterator<Pokemon> it = listedPokemon.iterator();
+
+      while (it.hasNext()) {
+        Pokemon pokemon = it.next();
+
+        if (pokemon.getName().equals("Fletchling")) break;
+
+        pokemon.createSet();
+        pokemon.getSet().initializeStats(pokemon);
+      }
   }
   catch (MalformedURLException e) {
       System.out.println("Malformed URL: " + e.getMessage());
@@ -201,56 +233,6 @@ public void printAttacksDetails() {
       System.out.println("I/O Error: " + e.getMessage());
   }
 
-  }
-
-  public void initializeDetails(String[] columns) throws Exception {
-    String fullname = columns[2];
-    Iterator<Pokemon> it = listedPokemon.iterator();
-
-    if (!columns[4].contains("NULL")) {  
-      if (columns[4].contains(" ")) {
-        StringBuilder builder2 = new StringBuilder(columns[4]);
-        builder2.delete(builder2.indexOf(" "), builder2.length());
-        while(it.hasNext()) {
-          Pokemon pokemon = it.next();
-          if (pokemon.getName().contains(fullname) && pokemon.getName().contains(builder2.toString())) {
-            pokemon.setupPokemon(columns);
-            break;
-        }
-      }
-      } else {
-        fullname = (fullname + "-" + columns[4]);
-        if (fullname.contains("Indeedee")) fullname = "Indeedee-F";
-        while(it.hasNext()) {
-          Pokemon pokemon = it.next();
-          if (pokemon.getName().equals(fullname)) {
-            pokemon.setupPokemon(columns);
-            break;
-          }
-        }
-      } 
-    } else {           
-      while(it.hasNext()) {
-        Pokemon pokemon = it.next();
-        if (pokemon.getName().equals(fullname)) {
-          pokemon.setupPokemon(columns);
-          break;
-        }
-      }
-    }
-
-  }
-
-  public boolean validPokemon(String[] line) {
-    boolean result = true;
-
-    // Excludes pokemon not in the usage stats, mega forms, mythicals, etc. stuff not allowed in VGC
-    if (!pokemonNames.contains(line[2]) || line[4].contains("Mega") || line[4].contains("Starter")
-      || line[4].contains("Eternamax") || line[6].contains("Mythical")) {
-      result = false;
-    }
-
-    return result;
   }
 
   // returns all letters and '-' characters in the line argument
@@ -310,7 +292,7 @@ public void printAttacksDetails() {
     return result;
   }
 
-  private static String cleanTextContent(String text) {
+  public static String cleanTextContent(String text) {
       // strips off all non-ASCII characters
       text = text.replaceAll("[^\\x00-\\x7F]", "");
 

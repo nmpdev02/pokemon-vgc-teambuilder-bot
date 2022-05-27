@@ -9,14 +9,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class Pokemon {
 
-    private String name, ability1, ability2, hiddenAbility;
+    private String name;
     private int hp, attack, defense, spattack, spdefense, speed, rbst;
     private double usage;
-    private boolean physicalAttacker, gmax, restricted;
+    private boolean physicalAttacker;
     private Type[] types;
     private CommonSet set;
 
@@ -25,80 +26,6 @@ public class Pokemon {
       this.usage = usage;
       types = new Type[2];
       set = new CommonSet();
-    }
-
-    public void setupPokemon(String[] line) throws Exception {
-
-      // Determine if the pokemon is a restricted legendary
-      if (line[6].contains("Legendary") && !(line[6].contains("Sub"))) {
-        this.restricted = true;
-      } else this.restricted = false;
-
-      // Set primary and secondary types
-      this.types[0] = new Type(line[9]);
-      if (line[10].equals("NULL")) {
-        this.types[1] = null;
-      } else this.types[1] = new Type(line[10]);
-
-      // Set ability 1, 2, and hidden ability
-      this.ability1 = line[11];
-      this.ability2 = line[13];
-      this.hiddenAbility = line[15];
-
-      // Set base stats
-      this.hp = Integer.parseInt(line[24]);
-      this.attack = Integer.parseInt(line[25]);
-      this.defense = Integer.parseInt(line[26]);
-      this.spattack = Integer.parseInt(line[27]);
-      this.spdefense = Integer.parseInt(line[28]);
-      this.speed = Integer.parseInt(line[29]);
-
-      // Determine if physical or special attacker to calculate real base stat total
-      setPhysicalAttacker();
-      if (this.physicalAttacker) {
-        this.rbst = (Integer.parseInt(line[30]) - this.spattack);
-      } else this.rbst = (Integer.parseInt(line[30]) - this.attack);
-
-      createSet();
-      
-    }
-
-    public void initializeDetails(String[] columns) throws Exception {
-      String fullname = columns[2];
-      Iterator<Pokemon> it = listedPokemon.iterator();
-  
-      if (!columns[4].contains("NULL")) {  
-        if (columns[4].contains(" ")) {
-          StringBuilder builder2 = new StringBuilder(columns[4]);
-          builder2.delete(builder2.indexOf(" "), builder2.length());
-
-            Pokemon pokemon = it.next();
-            if (pokemon.getName().contains(fullname) && pokemon.getName().contains(builder2.toString())) {
-              pokemon.setupPokemon(columns);
-              break;
-          }
-        
-        } else {
-          fullname = (fullname + "-" + columns[4]);
-          if (fullname.contains("Indeedee")) fullname = "Indeedee-F";
-          while(it.hasNext()) {
-            Pokemon pokemon = it.next();
-            if (pokemon.getName().equals(fullname)) {
-              pokemon.setupPokemon(columns);
-              break;
-            }
-          }
-        } 
-      } else {           
-        while(it.hasNext()) {
-          Pokemon pokemon = it.next();
-          if (pokemon.getName().equals(fullname)) {
-            pokemon.setupPokemon(columns);
-            break;
-          }
-        }
-      }
-  
     }
 
     public void createSet() throws IllegalArgumentException, IllegalAccessException {
@@ -110,6 +37,7 @@ public class Pokemon {
       Nature nature = new Nature();
       int[] EVs = new int[6];
 
+      System.out.println("Creating set for: " + this.name);
       try {
 
         URL url = new URL("https://www.pikalytics.com/pokedex/ss/" + this.name);
@@ -118,9 +46,103 @@ public class Pokemon {
         BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 
         String line;
-        while ((line = in.readLine()) != null) { //ITEM SECTION
-          // First, create the move set
-          if (line.endsWith("Item")) {
+        while ((line = in.readLine()) != null) { 
+
+          /* SETTING TYPES */
+          if (line.contains("pokedex-header-types") && line.contains("margin-block-start")) { 
+
+            String[] pokemonTypes = StringUtils.substringsBetween(line, "type ", "</span>");
+
+            if (!(this.name.equals("Sirfetch'd"))) {
+
+            StringBuilder builder = new StringBuilder(pokemonTypes[0]);
+            builder.delete(0, ((builder.length() / 2) + 1));
+            Character upper = Character.toUpperCase(builder.charAt(0));
+            String replace = "" + upper;
+            builder.replace(0, 1, replace);
+
+            this.types[0] = new Type().setType(builder.toString());
+
+            if (pokemonTypes.length > 1) {
+
+              builder = new StringBuilder(pokemonTypes[1]);
+              upper = Character.toUpperCase(builder.charAt(0));
+              builder.delete(0, ((builder.length() / 2) + 1));
+              replace = "" + upper;
+              builder.replace(0, 1, replace);
+
+              this.types[1] = new Type().setType(builder.toString());
+
+              }
+            } else this.types[0] = Type.FIGHTING;
+          }
+
+          String stat;
+          if (line.contains("Base Stats")) {
+
+            if (!(this.name.equals("Sirfetch'd"))) {
+
+            for (int i = 0; i < 10; i++) { // HP
+              line = in.readLine();
+            }
+            stat = StringUtils.substringBetween(line, "20px;\">", "</div>");
+            this.hp = Integer.parseInt(stat);
+
+            for (int i = 0; i < 8; i++) { // ATTACK
+              line = in.readLine();
+            }
+            stat = StringUtils.substringBetween(line, "20px;\">", "</div>");
+            this.attack = Integer.parseInt(stat);
+
+            for (int i = 0; i < 8; i++) { // DEFENSE
+              line = in.readLine();
+            }
+            stat = StringUtils.substringBetween(line, "20px;\">", "</div>");
+            this.defense = Integer.parseInt(stat);
+
+            for (int i = 0; i < 8; i++) { // SP.ATTACK
+              line = in.readLine();
+            }
+            stat = StringUtils.substringBetween(line, "20px;\">", "</div>");
+            this.spattack = Integer.parseInt(stat);
+
+            for (int i = 0; i < 8; i++) { // SP.DEFENSE
+              line = in.readLine();
+            }
+            stat = StringUtils.substringBetween(line, "20px;\">", "</div>");
+            this.spdefense = Integer.parseInt(stat);
+
+            for (int i = 0; i < 8; i++) { // SPEED
+              line = in.readLine();
+            }
+            stat = StringUtils.substringBetween(line, "20px;\">", "</div>");
+            this.speed = Integer.parseInt(stat);
+
+            if (this.name.equals("Aegislash")) {
+              this.attack = this.defense;
+              this.spattack = this.spdefense;
+            }
+
+            this.setPhysicalAttacker();
+            if (this.physicalAttacker) {
+              this.rbst = (this.hp + this.defense + this.spdefense + this.speed + this.attack);
+            } else this.rbst = (this.hp + this.defense + this.spdefense + this.speed + this.spattack);
+
+            if (this.name.equals("Regigigas")) {
+              this.rbst -= 80;
+            }
+
+            } else {
+              this.hp = 62;
+              this.attack = 135;
+              this.defense = 95;
+              this.spattack = 68;
+              this.spdefense = 82;
+              this.speed = 65;
+            }
+          }
+
+          if (line.endsWith("Item") && !(line.contains("Add"))) { //ITEM SECTION
 
             for (int i = 0; i < 11; i++) {
               line = in.readLine();
@@ -134,11 +156,7 @@ public class Pokemon {
               line = in.readLine();
             }
             abilityName = StringUtils.substringBetween(line, "block;\">", "</div>");
-            //REMOVE ME?
-            if (abilityName == null || abilityName.equals("")) {
-              System.out.println("ERROR PARSING ABILITY");
-              break;
-            }
+
             for (Field f : fields) {
               if (f.getType().equals(Ability.class)) {
                 Ability temp = (Ability) f.get(null);
@@ -155,6 +173,13 @@ public class Pokemon {
             }
             attacks[0] = setAttack(line);
 
+            if (this.name.equals("Ditto")) {
+              Attack placeholder = new Attack();
+              attacks[1] = placeholder;
+              attacks[2] = placeholder;
+              attacks[3] = placeholder;
+            } else {
+
             for (int i = 0; i < 6; i++) {
               line = in.readLine();
             }
@@ -169,12 +194,15 @@ public class Pokemon {
               line = in.readLine();
             }
             attacks[3] = setAttack(line);
+          }
 
-          } else if (line.contains("EV Spreads -->")) {
-            for (int i = 0; i < 6; i++) {
+          } else if (line.contains("EV Spreads -->")) { // EVs and Nature
+            while (!(line.contains("pokedex-move-entry-new"))) {
               line = in.readLine();
             }
+            line = in.readLine();
 
+            //System.out.println(this.name + ", " + line);
             nature = setNature(line);
             line = in.readLine();
             EVs = setEVs(line);
@@ -188,18 +216,17 @@ public class Pokemon {
         System.out.println("Malformed URL: " + e.getMessage());
     }
     catch (IOException e) {
-        System.out.println("There is no set for this Pokemon");
     }
     catch (IllegalArgumentException e) {
-        System.out.println("INVALID ABILITY");
+        System.out.println("INVALID ABILITY " + e.getMessage());
     } 
     catch (IllegalAccessException e) {
-        System.out.println("INVALID ABILITY");
+        System.out.println("INVALID ABILITY " + e.getMessage());
     }
 
     CommonSet set = new CommonSet(attacks, ability, item, nature, EVs);
     this.set = set;
-    }
+  }
   
     public void setPhysicalAttacker() {
   
@@ -210,7 +237,13 @@ public class Pokemon {
           this.physicalAttacker = true;
           break;
         case ("Landorus"):
-          this.physicalAttacker = true;
+          this.physicalAttacker = false;
+          break;
+        case ("Nidoking"):
+          this.physicalAttacker = false;
+          break;
+        case ("Nidoqueen"):
+          this.physicalAttacker = false;
           break;
         default:
           if (this.attack > this.spattack) {
@@ -232,22 +265,12 @@ public class Pokemon {
       String result = "";
 
       if (this.types[0] != null) {
-      if (this.types[1] == null) {
-        result += ("Type: " + this.types[0].getName() + " ");
-      } else {
-        result += ("Types: " + this.types[0].getName() + ", " + this.types[1].getName() + " ");
+        if (this.types[1] == null) {
+          result += ("Type: " + this.types[0].getName() + " ");
+        } else {
+          result += ("Types: " + this.types[0].getName() + ", " + this.types[1].getName() + " ");
+        }
       }
-
-      if (ability2.equals("NULL") && hiddenAbility.equals("NULL")) {
-        result += ("Ability: " + this.ability1 + " ");
-      } else if (this.ability2.equals("NULL")) {
-        result += ("Abilities: " + this.ability1 + ", " + this.hiddenAbility + " ");
-      } else if (this.hiddenAbility.equals("NULL")) {
-        result += ("Abilities: " + this.ability1 + ", " + this.ability2 + " ");
-      } else {
-      result += ("Abilities: " + this.ability1 + ", " + this.ability2 + ", " + this.hiddenAbility + " ");
-      }
-    }
       return result;
     }
 
@@ -255,46 +278,288 @@ public class Pokemon {
       return (this.rbst + this.speed);
     }
     
-    public int calculateDamage(Pokemon pokemon, Pokemon opponent, Attack attack) {
-      int result = 0, attackingStat, defendingStat;
-      double STAB = 0, AD;
+    public double calculateDamage(Pokemon opponent, Attack attack) {
+      int attackingStat, defendingStat;
+      double STAB = 1, AD, result = 0;
   
       if (attack.getPower() == 0) {
-          return 100;
+          return 35;
       }
   
       if (this.physicalAttacker) {
-          attackingStat = pokemon.set.getAttackStat();
+          attackingStat = this.set.getAttackStat();
           defendingStat = opponent.set.getDefenseStat();
+          if (this.name.equals("Regigigas")) {
+            attackingStat *= 0.5;
+          }
       } else { 
-          attackingStat = pokemon.set.getSpattackStat();
+          attackingStat = this.set.getSpattackStat();
           defendingStat = opponent.set.getSpdefenseStat();
+          if (opponent.set.getItem().getName().equals("Assault Vest")) {
+            defendingStat *= 1.25;
+          }
+      }
+
+      if (opponent.set.getItem().getName().equals("Eviolite")) {
+            defendingStat *= 1.5;
       }
   
       AD = (attackingStat/defendingStat);
 
       if (checkSTAB(attack)) {
-          if (pokemon.types[0].equals(attack.getType()) || pokemon.types[1].equals(attack.getType())
-            || pokemon.set.getAbility().getName().equals("Protean") 
-            || pokemon.set.getAbility().getName().equals("Libero")) {
+          if (this.types[0].equals(attack.getType()) || this.types[1].equals(attack.getType())
+            || this.set.getAbility().getName().equals("Protean") 
+            || this.set.getAbility().getName().equals("Libero")) {
 
-            if (pokemon.set.getAbility().getName().equals("Adaptability")) {
+            if (this.set.getAbility().getName().equals("Adaptability")) {
               STAB = 2;
             } else STAB = 1.5;
 
           } else STAB = 1;
       }
   
-  
+      result = ((((22 * attack.getPower() * AD)/50)+2) * STAB * spreadMove(attack.getName()) * 
+          this.itemMultipliers(opponent, attack) * this.abilityMultipliers(opponent, attack) * 
+          this.otherMultipliers(opponent, attack) * 
+          attack.getType().calcDualTypeWeakness(opponent.types[0], opponent.types[1]));
+        
+      return result;
+    }
+
+    public double otherMultipliers(Pokemon opponent, Attack attack) {
+      double result = 1;
+
+      return result;
+    }
+
+    public double itemMultipliers(Pokemon opponent, Attack attack) {
+      Item atkItem = this.set.getItem();
+      Item defItem = opponent.set.getItem();
+      Type attackType = attack.getType();
+      double result = 1;
+
+      if (defItem.getName().contains("Berry")) {
+        if (attackType.calcDualTypeWeakness(opponent.types[0], opponent.types[1]) > 1) {
+          result *= 0.5;
+        }
+      }
+
+      if (atkItem.getType() == null) {
+        if (atkItem.getName().equals("Expert Belt")) {
+          if (attackType.calcDualTypeWeakness(opponent.types[0], opponent.types[1]) > 1) {
+            result *= 1.2;
+          }
+        } else if (atkItem.getName().contains("Choice")) {
+          result *= 1.5; 
+        } else if (atkItem.getName().equals("Thick Club")) {
+          result *= 2;
+        } else if (atkItem.getName().equals("Life Orb")) {
+          result *= 1.3; 
+        }
+      } else if (attackType.getName().equals(atkItem.getType().getName())) {
+        result *= 1.2;
+      }
+
+      return result;
+    }
+
+    public double intimidate(Pokemon opponent) {
+      double result = 1;
+
+      if (this.physicalAttacker) {
+      if (opponent.set.getAbility().getName().equals("Intimidate")) {
+        switch (this.set.getAbility().getName()) {
+          case ("Full-Metal-Body"):
+            return 1;
+          case ("Clear Body"):
+            return 1;
+          case ("Oblivious"):
+            return 1;
+          case ("Inner Focus"):
+            return 1;
+          case ("White Smoke"):
+            return 1;
+          case ("Scrappy"):
+            return 1;
+          case ("Defiant"):
+            return 1.5;
+          case ("Competetive"):
+            return 2;
+          default:
+            return 0.67;
+        }
+      }
+    }
+
+      return result;
+    }
+
+    public double abilityMultipliers(Pokemon opponent, Attack attack) {
+      double result = 1;
+      Ability attackAbility = this.set.getAbility();
+      Ability opponentAbility = opponent.set.getAbility();
+      Type attackType = attack.getType();
+
+      if (attackAbility.equals(Ability.NEUTRALIZING_GAS) || 
+          opponentAbility.equals(Ability.NEUTRALIZING_GAS)) return 1;
+
+      if (opponentAbility.getName().equals("Wonder Guard")) {
+          if (attackType.calcDualTypeWeakness(Type.GHOST, Type.BUG) < 2) {
+              result *= 0;
+          }
+      }
+
+      if (opponentAbility.getBoost() == 0.75) { // Abilities like Prism Armor, Solid Rock
+          if (attackType.calcDualTypeWeakness(opponent.types[0], opponent.types[1]) >= 2) {
+              result *= 0.75;
+          }
+      } else if (opponentAbility.getBoost() == 0.5) { // Multiscale, Shadow Shield
+          result *= 0.5;
+      }
+
+      if (opponentAbility.getTypeResist() != null && opponentAbility.getTypeBoost() == null) { // Abilities like Volt Absorb, Storm Drain, etc.
+          if (attackType.equals(opponentAbility.getTypeResist())) {
+              result *= opponentAbility.getBoost();
+          }
+      }
+
+      if (attackAbility.getName().equals("Water Bubble")) {
+        if (attackType.equals(Type.WATER)) {
+          result *= 1.5;
+        }
+      }
+
+      if (opponentAbility.getName().equals("Water Bubble")) {
+        if (attackType.equals(Type.FIRE)) {
+          result *= 0.5;
+        }
+      }
+
+      if (attackAbility.getTypeBoost() != null) {
+          if (attackType.equals(attackAbility.getTypeBoost())) {
+              result *= attackAbility.getBoost();
+          }
+      } else if (attackAbility.getBoost() > 1) { 
+          if (!(attackAbility.getName().equals("Defiant") || attackAbility.getName().equals("Competetive"))) {
+            result *= attackAbility.getBoost();
+          }
+      }
+
+      result *= weatherWars(opponent, attack);
+
+      result *= intimidate(opponent);
+
       return result;
   }
+
+  public double weatherWars(Pokemon opponent, Attack attack) {
+      double result = 1;
+
+      Ability ability1 = this.set.getAbility(), ability2 = opponent.set.getAbility();
+
+      if (!(ability1.getName().equals("Air Lock") || ability2.getName().equals("Air Lock") ||
+      ability1.getName().equals("Cloud Nine") || ability2.getName().equals("Cloud Nine"))) {
+
+          if (ability1.getName().equals("Drought") || ability1.getName().equals("Sand Stream") || 
+          ability1.getName().equals("Snow Warning") || ability1.getName().equals("Drizzle")) {
+
+              if (ability2.getName().equals("Drizzle") || ability2.getName().equals("Sand Stream") || 
+                  ability2.getName().equals("Snow Warning") || ability2.getName().equals("Drought")) {
+                  if (this.set.getSpeedStat() <= opponent.set.getSpeedStat()) {
+                      result = weatherBoost(ability1, attack);
+                  } else result = weatherBoost(ability2, attack);
+              }
+          } else if (ability2.getName().equals("Drizzle") || ability2.getName().equals("Drought")) {
+              result = weatherBoost(ability2, attack);
+          }
+      }
+
+      return result;
+  }
+
+  public double weatherBoost(Ability ability, Attack attack) {
+      double result = 1;
+
+      if (ability.getName().equals("Drizzle")) { // DRIZZLE
+          if (attack.getType().equals(Type.WATER)) {
+              result = 1.5;
+          } else if (attack.getType().equals(Type.FIRE)) {
+              result = 0.5;
+          }
+      } else if (ability.getName().equals("Drought")) { // DROUGHT
+          if (attack.getType().equals(Type.FIRE)) {
+              result = 1.5;
+          } else if (attack.getType().equals(Type.WATER)) {
+              result = 0.5;
+          }
+      }
+      return result;
+  }
+
+    public double spreadMove(String attackName) {
+      switch (attackName) {
+          case ("Earthquake"):
+              return 0.75;
+          case ("Astral Barrage"):
+              return 0.75;
+          case ("Glacial Lance"):
+              return 0.75;
+          case ("Rock Slide"):
+              return 0.75;
+          case ("Surf"):
+              return 0.75;
+          case ("Muddy Water"):
+              return 0.75;
+          case ("Blizzard"):
+              return 0.75;
+          case ("Eruption"):
+              return 0.75;
+          case ("Brutal Swing"):
+              return 0.75;
+          case ("Water Spout"):
+              return 0.75;
+          case ("Precipice Blades"):
+              return 0.75;
+          case ("Origin Pulse"):
+              return 0.75;
+          case ("Bulldoze"):
+              return 0.75;
+          case ("Discharge"):
+              return 0.75;
+          case ("Heat Wave"):
+              return 0.75;
+          case ("Snarl"):
+              return 0.75;
+          case ("Clanging Scales"):
+              return 0.75;
+          case ("Dazzling Gleam"):
+              return 0.75;
+          case ("Dragon Energy"):
+              return 0.75;
+          case ("Thousand Arrows"):
+              return 0.75;
+          case ("Icy Wind"):
+              return 0.75;
+          case ("Thousand Waves"):
+              return 0.75;
+          case ("Overdrive"):
+              return 0.75;
+          case ("Burning Jealousy"):
+              return 0.75;
+          default:
+              return 1;
+      }
+     
+    }
   
   public double offensivePotential(Pokemon opponent) {
       Attack[] moveSet = this.set.getMoveSet();
       double[] damage = new double[4];
   
       for (int i = 0; i < moveSet.length; i++) {
-          damage[i] = calculateDamage(this, opponent, moveSet[i]);
+          if (moveSet[i] != null) {
+          damage[i] = this.calculateDamage(opponent, moveSet[i]);
+          } else damage[i] = 35;
       }
 
       double max = 0;
@@ -308,12 +573,6 @@ public class Pokemon {
   
       return max;
   }
-
-  public double gmaxPoints() {
-    if (this.gmax == true) {
-        return 100.0;
-    } else return 0;
-}
 
 public Item setItem(String name) {
 
@@ -420,9 +679,10 @@ public Attack setAttack(String line) {
   
   String name = StringUtils.substringBetween(line, "block;\">", "</div>");
   StringBuilder builder = new StringBuilder(name);
-  String upper = "" + Character.toLowerCase(builder.charAt(0));
-  builder.replace(0, 1, upper);
   name = builder.toString().replace(" ", "-");
+  name = name.toLowerCase();
+  name = Bot.cleanTextContent(name);
+  name = StringEscapeUtils.escapeXml11(name);
 
   Iterator<Attack> it = attacks.iterator();
   while(it.hasNext()) {
@@ -433,13 +693,16 @@ public Attack setAttack(String line) {
     }
   }
 
-  if (result.getName() == null) { System.out.println("INVALID PARSING FOR ATTACK"); }
+  if (result.getName() == null) {
+    System.out.println("INVALID PARSING FOR: " + name);
+  }
   return result;
 }
 
 public Nature setNature(String line) {
   String name = StringUtils.substringBetween(line, "block;\">", "</div>");
   Nature nature = new Nature(name);
+  nature.applyModifiers(name);
 
   return nature;
 }
@@ -448,21 +711,34 @@ public int[] setEVs(String line) {
   String[] EVs = StringUtils.substringsBetween(line, "block;\">", "</div>");
   int[] result = new int[6];
   for (int i = 0; i <= 5; i++) {
+    
     StringBuilder builder = new StringBuilder(EVs[i]);
-    builder.delete((builder.length() - 2), (builder.length() - 1));
+    if (i != 5) {
+    builder.deleteCharAt(builder.length() - 1);
     String temp = builder.toString();
     result[i] = Integer.parseInt(temp);
+    } else result[5] = Integer.parseInt(EVs[5]);
   }
 
   return result;
 }
 
 public boolean checkSTAB(Attack attack) {
-    if (this.types[0].equals(attack.getType()) && attack.getPower() > 0) {
-        return true;
-    } else if (this.types[1].equals(attack.getType()) && attack.getPower() > 0) {
-        return true;
-    } else return false;
+  boolean result = false;
+
+    if (this.types[1] != null) {
+      if (this.types[0].equals(attack.getType()) && attack.getPower() > 0) {
+        result = true;
+      } else if (this.types[1].equals(attack.getType()) && attack.getPower() > 0) {
+        result = true;
+      }
+    } else {
+        if (this.types[0].equals(attack.getType()) && attack.getPower() > 0) {
+        result = true;
+        }
+      }
+
+  return result;
 }
 
 public double checkWeakness(Attack attack, Pokemon opponent) {
@@ -497,6 +773,10 @@ public int getSpdefense() {
 
 public int getSpeed() {
   return this.speed;
+}
+
+public CommonSet getSet() {
+  return this.set;
 }
 
 }

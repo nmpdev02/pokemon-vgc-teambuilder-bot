@@ -6,7 +6,11 @@ public class Ability {
   private double attackBoost, defenseBoost;
   private Type boost, resist;
 
-  public Ability() {}
+  public Ability() {
+    this.name = "uselessAbility";
+    this.attackBoost = 1;
+    this.defenseBoost = 1;
+  }
 
   public Ability(String name) {
     this.name = name;
@@ -28,7 +32,7 @@ public class Ability {
   public static final Ability GORILLA_TACTICS = new Ability("Gorilla Tactics", 1.5, 1, null, null);
   public static final Ability HUSTLE = new Ability("Hustle", 1.5, 1, null, null);
   public static final Ability STRONG_JAW = new Ability("Strong Jaw", 1.5, 1, null, null);
-  public static final Ability SHEER_FORCE = new Ability("Sheer Force", 1.5, 1, null, null);
+  public static final Ability SHEER_FORCE = new Ability("Sheer Force", 1.25, 1, null, null);
   public static final Ability TECHNICIAN = new Ability("Technician", 1.5, 1, null, null);
   public static final Ability SUPER_LUCK = new Ability("Super Luck", 1.5, 1, null, null);
 
@@ -36,8 +40,8 @@ public class Ability {
   public static final Ability INTIMIDATE = new Ability("Intimidate", 0.66, 1, null, null);
   public static final Ability PRISM_ARMOR = new Ability("Prism Armor", 0.75, 1, null, null);
   public static final Ability SOLID_ROCK = new Ability("Solid Rock", 0.75, 1, null, null);
-  public static final Ability MULTISCALE = new Ability("Multiscale", 0.5, 1, null, null);
-  public static final Ability SHADOW_SHIELD = new Ability("Shadow Shield", 0.5, 1, null, null);
+  public static final Ability MULTISCALE = new Ability("Multiscale", 0.75, 1, null, null);
+  public static final Ability SHADOW_SHIELD = new Ability("Shadow Shield", 0.75, 1, null, null);
 
   /* DEFENSE MODIFIERS */
   public static final Ability DAUNTLESS_SHIELD = new Ability("Dauntless Shield", 1, 1.5, null, null);
@@ -48,7 +52,7 @@ public class Ability {
   /* CHECK FOR INTIMIDATE FOR THESE ABILITIES */
   public static final Ability DEFIANT = new Ability("Defiant", 1.5, 1, null, null); 
   public static final Ability COMPETETIVE = new Ability("Competetive", 2.0, 1, null, null);
-  public static final Ability FULL_METAL_BODY = new Ability("Full-Metal-Body", 1, 1, null, null);
+  public static final Ability FULL_METAL_BODY = new Ability("Full Metal Body", 1, 1, null, null);
   public static final Ability CLEAR_BODY = new Ability("Clear Body", 1, 1, null, null);
   public static final Ability OBLIVIOUS = new Ability("Oblivious", 1, 1, null, null);
   public static final Ability INNER_FOCUS = new Ability("Inner Focus", 1, 1, null, null);
@@ -88,8 +92,24 @@ public class Ability {
   public static final Ability THICK_FAT = new Ability("Thick Fat", 1, 1, null, null);
   public static final Ability STANCE_CHANGE = new Ability("Stance Change", 1, 1, null, null);
 
-
   public String getName() {
     return this.name;
   }
+
+  public double getBoost() {
+    return this.attackBoost;
+  }
+
+  public double getResist() {
+    return this.defenseBoost;
+  }
+
+  public Type getTypeBoost() {
+    return this.boost;
+  }
+
+  public Type getTypeResist() {
+    return this.resist;
+  }
+
 }

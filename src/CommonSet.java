@@ -7,12 +7,15 @@ public class CommonSet {
   private Nature nature;
   private int[] EVs, stats;
 
+  public CommonSet() {}
+
   public CommonSet(Attack[] moveSet, Ability ability, Item item, Nature nature, int[] EVs) {
     this.moveSet = moveSet;
     this.ability = ability;
     this.item = item;
     this.nature = nature;
     this.EVs = EVs;
+    this.stats = new int[6];
   }
 
   public void initializeStats(Pokemon pokemon) throws NullPointerException {
@@ -47,8 +50,16 @@ public class CommonSet {
     return this.ability;
   }
 
+  public Item getItem() {
+    return this.item;
+  }
+
   public Attack[] getMoveSet() {
     return this.moveSet;
+  }
+
+  public int getHPStat() {
+    return this.stats[0];
   }
 
   public int getAttackStat() {
@@ -67,5 +78,12 @@ public class CommonSet {
     return stats[4];
   }
 
+  public int getSpeedStat() {
+    return this.stats[5];
+  }
+
+  public Nature getNature() {
+    return this.nature;
+  }
 
 }

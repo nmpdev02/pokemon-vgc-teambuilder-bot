@@ -6,9 +6,10 @@ public class Driver {
 
     Bot bot = new Bot();
     bot.initializeAttacks();
-    bot.printAttacksDetails();
+    //bot.printAttacksDetails();
     bot.createPokemon();
-    bot.printPokemonDetails();
+    //bot.printPokemonDetails();
+    bot.calculatePoints(Bot.listedPokemon);
 
   }
 

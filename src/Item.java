@@ -4,7 +4,12 @@ public class Item {
   private double damageBoost, defenseBoost;
   private Type type;
 
-  public Item() {}
+  public Item() {
+    this.name = "uselessItem";
+    this.damageBoost = 1;
+    this.defenseBoost = 1;
+    this.type = null;
+  }
 
   public Item(String name) {
     this.name = name;
@@ -63,9 +68,18 @@ public class Item {
   public static final Item BLACK_BELT = new Item("Black Belt", 1.2, 1, Type.FIGHTING);
   public static final Item POISON_BARB = new Item("Poison Barb", 1.2, 1, Type.POISON);
   public static final Item SILK_SCARF = new Item("Silk Scarf", 1.2, 1, Type.NORMAL);
+  public static final Item EXPERT_BELT = new Item("Expert Belt", 1.2, 1, null);
   
   /* Other Iteams */
   public static final Item ASSAULT_VEST = new Item("Assault Vest");
   public static final Item EVIOLITE = new Item("Eviolite");
+
+  public String getName() {
+    return this.name;
+  }
+
+  public Type getType() {
+    return this.type;
+  }
 
 }

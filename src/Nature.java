@@ -7,7 +7,6 @@ public class Nature {
  
 	public Nature(String name) {
         this.name = name;
-        applyModifiers(name);
     }
  
     public void applyModifiers(String name) {
