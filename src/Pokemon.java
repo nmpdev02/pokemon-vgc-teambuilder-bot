@@ -450,6 +450,62 @@ public class Pokemon {
       result *= intimidate(opponent);
 
       return result;
+    }
+    
+  public double spreadMove(String attackName) {
+    switch (attackName) {
+        case ("Earthquake"):
+            return 0.75;
+        case ("Astral Barrage"):
+            return 0.75;
+        case ("Glacial Lance"):
+            return 0.75;
+        case ("Rock Slide"):
+            return 0.75;
+        case ("Surf"):
+            return 0.75;
+        case ("Muddy Water"):
+            return 0.75;
+        case ("Blizzard"):
+            return 0.75;
+        case ("Eruption"):
+            return 0.75;
+        case ("Brutal Swing"):
+            return 0.75;
+        case ("Water Spout"):
+            return 0.75;
+        case ("Precipice Blades"):
+            return 0.75;
+        case ("Origin Pulse"):
+            return 0.75;
+        case ("Bulldoze"):
+            return 0.75;
+        case ("Discharge"):
+            return 0.75;
+        case ("Heat Wave"):
+            return 0.75;
+        case ("Snarl"):
+            return 0.75;
+        case ("Clanging Scales"):
+            return 0.75;
+        case ("Dazzling Gleam"):
+            return 0.75;
+        case ("Dragon Energy"):
+            return 0.75;
+        case ("Thousand Arrows"):
+            return 0.75;
+        case ("Icy Wind"):
+            return 0.75;
+        case ("Thousand Waves"):
+            return 0.75;
+        case ("Overdrive"):
+            return 0.75;
+        case ("Burning Jealousy"):
+            return 0.75;
+        default:
+            return 1;
+    }
+   
   }
 
   public double weatherWars(Pokemon opponent, Attack attack) {
@@ -495,62 +551,6 @@ public class Pokemon {
       }
       return result;
   }
-
-    public double spreadMove(String attackName) {
-      switch (attackName) {
-          case ("Earthquake"):
-              return 0.75;
-          case ("Astral Barrage"):
-              return 0.75;
-          case ("Glacial Lance"):
-              return 0.75;
-          case ("Rock Slide"):
-              return 0.75;
-          case ("Surf"):
-              return 0.75;
-          case ("Muddy Water"):
-              return 0.75;
-          case ("Blizzard"):
-              return 0.75;
-          case ("Eruption"):
-              return 0.75;
-          case ("Brutal Swing"):
-              return 0.75;
-          case ("Water Spout"):
-              return 0.75;
-          case ("Precipice Blades"):
-              return 0.75;
-          case ("Origin Pulse"):
-              return 0.75;
-          case ("Bulldoze"):
-              return 0.75;
-          case ("Discharge"):
-              return 0.75;
-          case ("Heat Wave"):
-              return 0.75;
-          case ("Snarl"):
-              return 0.75;
-          case ("Clanging Scales"):
-              return 0.75;
-          case ("Dazzling Gleam"):
-              return 0.75;
-          case ("Dragon Energy"):
-              return 0.75;
-          case ("Thousand Arrows"):
-              return 0.75;
-          case ("Icy Wind"):
-              return 0.75;
-          case ("Thousand Waves"):
-              return 0.75;
-          case ("Overdrive"):
-              return 0.75;
-          case ("Burning Jealousy"):
-              return 0.75;
-          default:
-              return 1;
-      }
-     
-    }
   
   public double offensivePotential(Pokemon opponent) {
       Attack[] moveSet = this.set.getMoveSet();
