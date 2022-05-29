@@ -43,9 +43,9 @@ public class Item {
   public static final Item YACHE = new Item("Yache Berry", 1.0, 0.5, Type.ICE);
 
   /* Damage boosting items */
-  public static final Item THICK_CLUB = new Item("Thick Club", 2.0, 1, null);
-  public static final Item CHOICE_BAND = new Item("Choice Band", 1.5, 1, null);
-  public static final Item CHOICE_SPECS = new Item("Choice Specs", 1.5, 1, null);
+  public static final Item THICK_CLUB = new Item("Thick Club", 1.7, 1, null);
+  public static final Item CHOICE_BAND = new Item("Choice Band", 1.3, 1, null);
+  public static final Item CHOICE_SPECS = new Item("Choice Specs", 1.3, 1, null);
   public static final Item LIFE_ORB = new Item("Life Orb", 1.3, 1, null);
   public static final Item MYSTIC_WATER = new Item("Mystic Water", 1.2, 1, Type.WATER);
   public static final Item SEA_INCENSE = new Item("Sea Incense", 1.2, 1, Type.WATER);

@@ -10,7 +10,6 @@ public class Driver {
     bot.createPokemon();
     //bot.printPokemonDetails();
     bot.calculatePoints(Bot.listedPokemon);
-
   }
 
 }

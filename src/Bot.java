@@ -30,6 +30,34 @@ public class Bot {
     rankedPokemon = new HashMap<Pokemon, Double>();
   }
 
+  public void printSinglePokemon(String name) {
+    Iterator<Pokemon> it = listedPokemon.iterator();
+    while(it.hasNext()) {
+      Pokemon pokemon = it.next();
+      if (pokemon.getName().equals(name)) {
+        System.out.println();
+        System.out.println(name + ": " + pokemon.getType1().getName() + ", " + pokemon.getType2().getName());
+        System.out.println();
+        System.out.print("Moves: " + pokemon.getSet().getMoveSet()[0].getName() + ", ");
+        System.out.print(pokemon.getSet().getMoveSet()[1].getName() + ", ");
+        System.out.print(pokemon.getSet().getMoveSet()[2].getName() + ", ");
+        System.out.println(pokemon.getSet().getMoveSet()[3].getName());
+        System.out.println();
+        System.out.println("Item: " + pokemon.getSet().getItem().getName());
+        System.out.println();
+        System.out.println("Ability: " + pokemon.getSet().getAbility().getName());
+        System.out.println();
+        System.out.print("Stats: " + pokemon.getSet().getHPStat() + " ");
+        System.out.print(pokemon.getSet().getAttackStat() + " ");
+        System.out.print(pokemon.getSet().getDefenseStat() + " ");
+        System.out.print(pokemon.getSet().getSpattackStat() + " ");
+        System.out.print(pokemon.getSet().getSpdefenseStat() + " ");
+        System.out.println(pokemon.getSet().getSpeedStat());
+        System.out.println("spAttack EVs: " + pokemon.getSet().getEVs()[3]);
+      }
+    }
+  }
+
   public void printRankedList() {
 
     Set<Entry<Pokemon, Double>> entrySet = rankedPokemon.entrySet();
@@ -45,7 +73,7 @@ public class Bot {
     });
 
     list.forEach(entry->{
-      System.out.println(entry.getKey().getName() + ": " + entry.getValue() + " points");
+      System.out.println(entry.getKey().getSet().getItem().getName() + " " + entry.getKey().getName() + ": " + entry.getValue().intValue() + " points");
     });
 
   }
@@ -63,7 +91,7 @@ public class Bot {
 
       it2 = temp.iterator();
 
-      if (pokemon.getName().equals("Fletchling")) {
+      if (pokemon.getName().equals("Flygon")) {
         break;
       }
 
@@ -73,13 +101,10 @@ public class Bot {
         double attacking, defending;
         Pokemon opponent = it2.next();
 
-        if (opponent.getName().equals("Fletchling")) {
+        if (opponent.getName().equals("Krookodile")) {
           break;
         }
 
-        if (pokemon.getSet().getNature() == null) {
-          continue;
-        }
         if (opponent.getSet().getNature() == null || opponent.getSet().getNature().getName() == null) {
           continue;
         }
@@ -90,13 +115,22 @@ public class Bot {
         if (pokemon.getName().equals("Ditto")) {
           pokemon = opponent;
         }
-        attacking = (pokemon.offensivePotential(opponent) / opponent.getSet().getHPStat()); // Max damage pokemon can do to opponent
-        defending = (opponent.offensivePotential(pokemon) / pokemon.getSet().getHPStat()); // Max damage opponent can do to pokemon
+        if (!(pokemon.getName().equals(opponent.getName()))) {
+        attacking = (pokemon.offensivePotential(opponent)); // Max damage pokemon can do to opponent
+        defending = (opponent.offensivePotential(pokemon)); // Max damage opponent can do to pokemon
         if (defending == 0) defending = 1;
+        if (defending >= pokemon.getSet().getHPStat() && (opponent.getSet().getSpeedStat() > pokemon.getSet().getSpeedStat())) {
+          continue;
+        } 
+        if (defending >= pokemon.getSet().getHPStat() && attacking < opponent.getSet().getHPStat()) {
+          continue;
+        } 
         value += ((attacking / defending) * opponent.getUsage());
+        //value += (attacking * opponent.getUsage());
+      }
       }
 
-      value += pokemon.statPoints();
+      //value += pokemon.statPoints();
       
       rankedList.put(pokemon, value);
     }
@@ -205,26 +239,32 @@ public void printAttacksDetails() {
           
           if (Character.isDigit(line.charAt(3))) { // check if the line we are on contains a pokemon
             name = getName(line);
+
             if (name.contains("Silvally") || name.contains("Type Null") || name.equals("Arrokuda")) continue;
+
+            if (name.equals("Flygon")) break;
+
             pokemonNames.add(name);
             usage = getUsage(line);
             Pokemon pokemon = new Pokemon(name, usage);
             
             listedPokemon.add(pokemon); // add pokemon to list
+            pokemon.createSet();
+            pokemon.getSet().initializeStats(pokemon);
           }
       }
       in.close();
 
-      Iterator<Pokemon> it = listedPokemon.iterator();
+      // Iterator<Pokemon> it = listedPokemon.iterator();
 
-      while (it.hasNext()) {
-        Pokemon pokemon = it.next();
+      // while (it.hasNext()) {
+      //   Pokemon pokemon = it.next();
 
-        if (pokemon.getName().equals("Fletchling")) break;
+      //   if (pokemon.getName().equals("Claydoll")) break;
 
-        pokemon.createSet();
-        pokemon.getSet().initializeStats(pokemon);
-      }
+      //   pokemon.createSet();
+      //   pokemon.getSet().initializeStats(pokemon);
+      // }
   }
   catch (MalformedURLException e) {
       System.out.println("Malformed URL: " + e.getMessage());

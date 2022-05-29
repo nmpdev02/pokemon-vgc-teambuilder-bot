@@ -40,7 +40,7 @@ public class CommonSet {
       int result = 0;
 
       if (EVs >= 4) {
-          result = ((EVs % 8) + 1);
+          result = ((EVs / 8) + 1);
       }
 
       return result;
@@ -63,19 +63,19 @@ public class CommonSet {
   }
 
   public int getAttackStat() {
-    return stats[1];
+    return this.stats[1];
   }
 
   public int getDefenseStat() {
-    return stats[2];
+    return this.stats[2];
   }
 
   public int getSpattackStat() {
-    return stats[3];
+    return this.stats[3];
   }
 
   public int getSpdefenseStat() {
-    return stats[4];
+    return this.stats[4];
   }
 
   public int getSpeedStat() {
@@ -84,6 +84,10 @@ public class CommonSet {
 
   public Nature getNature() {
     return this.nature;
+  }
+
+  public int[] getEVs() {
+    return this.EVs;
   }
 
 }

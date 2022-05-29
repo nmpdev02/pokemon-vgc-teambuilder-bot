@@ -118,6 +118,10 @@ public class Pokemon {
             stat = StringUtils.substringBetween(line, "20px;\">", "</div>");
             this.speed = Integer.parseInt(stat);
 
+            if (this.name.equals("Regigigas")) {
+              this.speed /= 2;
+            }
+
             if (this.name.equals("Aegislash")) {
               this.attack = this.defense;
               this.spattack = this.spdefense;
@@ -129,7 +133,7 @@ public class Pokemon {
             } else this.rbst = (this.hp + this.defense + this.spdefense + this.speed + this.spattack);
 
             if (this.name.equals("Regigigas")) {
-              this.rbst -= 80;
+              this.rbst -= 180;
             }
 
             } else {
@@ -275,15 +279,15 @@ public class Pokemon {
     }
 
     public int statPoints() {
-      return (this.rbst + this.speed);
+      return this.rbst;
     }
     
     public double calculateDamage(Pokemon opponent, Attack attack) {
-      int attackingStat, defendingStat;
+      double attackingStat, defendingStat;
       double STAB = 1, AD, result = 0;
   
       if (attack.getPower() == 0) {
-          return 35;
+          return 50;
       }
   
       if (this.physicalAttacker) {
@@ -296,18 +300,18 @@ public class Pokemon {
           attackingStat = this.set.getSpattackStat();
           defendingStat = opponent.set.getSpdefenseStat();
           if (opponent.set.getItem().getName().equals("Assault Vest")) {
-            defendingStat *= 1.25;
+            defendingStat *= 1.4;
           }
       }
 
       if (opponent.set.getItem().getName().equals("Eviolite")) {
-            defendingStat *= 1.5;
+            defendingStat *= 1.4;
       }
   
       AD = (attackingStat/defendingStat);
 
-      if (checkSTAB(attack)) {
-          if (this.types[0].equals(attack.getType()) || this.types[1].equals(attack.getType())
+      if (this.checkSTAB(attack)) {
+          if (this.types[0].getName().equals(attack.getType().getName()) || this.types[1].getName().equals(attack.getType().getName())
             || this.set.getAbility().getName().equals("Protean") 
             || this.set.getAbility().getName().equals("Libero")) {
 
@@ -319,7 +323,7 @@ public class Pokemon {
       }
   
       result = ((((22 * attack.getPower() * AD)/50)+2) * STAB * spreadMove(attack.getName()) * 
-          this.itemMultipliers(opponent, attack) * this.abilityMultipliers(opponent, attack) * 
+          /* this.itemMultipliers(opponent, attack) */ this.abilityMultipliers(opponent, attack) * 
           this.otherMultipliers(opponent, attack) * 
           attack.getType().calcDualTypeWeakness(opponent.types[0], opponent.types[1]));
         
@@ -339,8 +343,10 @@ public class Pokemon {
       double result = 1;
 
       if (defItem.getName().contains("Berry")) {
-        if (attackType.calcDualTypeWeakness(opponent.types[0], opponent.types[1]) > 1) {
-          result *= 0.5;
+        if (defItem.getType() != null) {
+          if ((attackType.calcDualTypeWeakness(opponent.types[0], opponent.types[1]) > 1) && attackType.getName().equals(defItem.getType().getName())) {
+            result *= 0.5;
+          }
         }
       }
 
@@ -400,6 +406,8 @@ public class Pokemon {
       Ability opponentAbility = opponent.set.getAbility();
       Type attackType = attack.getType();
 
+      double weather = this.weatherWars(opponent, attack);
+
       if (attackAbility.equals(Ability.NEUTRALIZING_GAS) || 
           opponentAbility.equals(Ability.NEUTRALIZING_GAS)) return 1;
 
@@ -435,8 +443,9 @@ public class Pokemon {
         }
       }
 
+      if (!(attackAbility.getName().equals("Drizzle")) && !(attackAbility.getName().equals("Drought"))) {
       if (attackAbility.getTypeBoost() != null) {
-          if (attackType.equals(attackAbility.getTypeBoost())) {
+          if (attackType.getName().equals(attackAbility.getTypeBoost().getName())) {
               result *= attackAbility.getBoost();
           }
       } else if (attackAbility.getBoost() > 1) { 
@@ -444,8 +453,9 @@ public class Pokemon {
             result *= attackAbility.getBoost();
           }
       }
+    }
 
-      result *= weatherWars(opponent, attack);
+      result *= weather;
 
       result *= intimidate(opponent);
 
@@ -454,53 +464,53 @@ public class Pokemon {
     
   public double spreadMove(String attackName) {
     switch (attackName) {
-        case ("Earthquake"):
+        case ("earthquake"):
             return 0.75;
-        case ("Astral Barrage"):
+        case ("astral-barrage"):
             return 0.75;
-        case ("Glacial Lance"):
+        case ("glacial-lance"):
             return 0.75;
-        case ("Rock Slide"):
+        case ("rock-slide"):
             return 0.75;
-        case ("Surf"):
+        case ("surf"):
             return 0.75;
-        case ("Muddy Water"):
+        case ("muddy-water"):
             return 0.75;
-        case ("Blizzard"):
+        case ("blizzard"):
             return 0.75;
-        case ("Eruption"):
+        case ("eruption"):
             return 0.75;
-        case ("Brutal Swing"):
+        case ("brutal-swing"):
             return 0.75;
-        case ("Water Spout"):
+        case ("water-spout"):
             return 0.75;
-        case ("Precipice Blades"):
+        case ("precipice-blades"):
             return 0.75;
-        case ("Origin Pulse"):
+        case ("origin-pulse"):
             return 0.75;
-        case ("Bulldoze"):
+        case ("bulldoze"):
             return 0.75;
-        case ("Discharge"):
+        case ("discharge"):
             return 0.75;
-        case ("Heat Wave"):
+        case ("heat Wave"):
             return 0.75;
-        case ("Snarl"):
+        case ("snarl"):
             return 0.75;
-        case ("Clanging Scales"):
+        case ("clanging-scales"):
             return 0.75;
-        case ("Dazzling Gleam"):
+        case ("dazzling-gleam"):
             return 0.75;
-        case ("Dragon Energy"):
+        case ("dragon-energy"):
             return 0.75;
-        case ("Thousand Arrows"):
+        case ("thousand-arrows"):
             return 0.75;
-        case ("Icy Wind"):
+        case ("icy-wind"):
             return 0.75;
-        case ("Thousand Waves"):
+        case ("thousand-waves"):
             return 0.75;
-        case ("Overdrive"):
+        case ("overdrive"):
             return 0.75;
-        case ("Burning Jealousy"):
+        case ("burning-jealousy"):
             return 0.75;
         default:
             return 1;
@@ -524,7 +534,7 @@ public class Pokemon {
                   if (this.set.getSpeedStat() <= opponent.set.getSpeedStat()) {
                       result = weatherBoost(ability1, attack);
                   } else result = weatherBoost(ability2, attack);
-              }
+              } else result = weatherBoost(ability1, attack);
           } else if (ability2.getName().equals("Drizzle") || ability2.getName().equals("Drought")) {
               result = weatherBoost(ability2, attack);
           }
@@ -537,15 +547,15 @@ public class Pokemon {
       double result = 1;
 
       if (ability.getName().equals("Drizzle")) { // DRIZZLE
-          if (attack.getType().equals(Type.WATER)) {
+          if (attack.getType().getName().equals("Water")) {
               result = 1.5;
-          } else if (attack.getType().equals(Type.FIRE)) {
+          } else if (attack.getType().getName().equals("Fire")) {
               result = 0.5;
           }
       } else if (ability.getName().equals("Drought")) { // DROUGHT
-          if (attack.getType().equals(Type.FIRE)) {
+          if (attack.getType().getName().equals("Fire")) {
               result = 1.5;
-          } else if (attack.getType().equals(Type.WATER)) {
+          } else if (attack.getType().getName().equals("Water")) {
               result = 0.5;
           }
       }
@@ -563,7 +573,7 @@ public class Pokemon {
       }
 
       double max = 0;
-      for (int counter = 1; counter < damage.length; counter++) {
+      for (int counter = 0; counter < damage.length; counter++) {
 
         if (damage[counter] > max) {
           max = damage[counter];
@@ -727,13 +737,13 @@ public boolean checkSTAB(Attack attack) {
   boolean result = false;
 
     if (this.types[1] != null) {
-      if (this.types[0].equals(attack.getType()) && attack.getPower() > 0) {
+      if (this.types[0].getName().equals(attack.getType().getName()) && attack.getPower() > 0) {
         result = true;
-      } else if (this.types[1].equals(attack.getType()) && attack.getPower() > 0) {
+      } else if (this.types[1].getName().equals(attack.getType().getName()) && attack.getPower() > 0) {
         result = true;
       }
     } else {
-        if (this.types[0].equals(attack.getType()) && attack.getPower() > 0) {
+        if (this.types[0].getName().equals(attack.getType().getName()) && attack.getPower() > 0) {
         result = true;
         }
       }
@@ -777,6 +787,14 @@ public int getSpeed() {
 
 public CommonSet getSet() {
   return this.set;
+}
+
+public Type getType1() {
+  return this.types[0];
+}
+
+public Type getType2() {
+  return this.types[1];
 }
 
 }

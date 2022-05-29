@@ -29,7 +29,12 @@ public class Attack {
         } else this.power = Integer.valueOf(data[0]); // SET POWER OF ATTACK
         if (data[1].equals("") || data[1].equals("&infin")) {
             this.accuracy = 100; 
-        } else this.accuracy = Integer.valueOf(data[1]); // SET ACCURACY OF ATTACK (NOT USED ATM)
+        } else {
+            this.accuracy = Integer.valueOf(data[1]); // SET ACCURACY OF ATTACK
+            double acc = this.accuracy / 100;
+            this.power *= acc;
+        }
+        
     }
  
     public void setEffect(String line) {
