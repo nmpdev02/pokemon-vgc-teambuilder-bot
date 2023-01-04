@@ -1,6 +1,4 @@
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -12,9 +10,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.Map.Entry;
 
 public class Bot {
 
@@ -91,7 +89,7 @@ public class Bot {
 
       it2 = temp.iterator();
 
-      if (pokemon.getName().equals("Flygon")) {
+      if (pokemon.getName().equals("Eiscue")) {
         break;
       }
 
@@ -101,7 +99,8 @@ public class Bot {
         double attacking, defending;
         Pokemon opponent = it2.next();
 
-        if (opponent.getName().equals("Krookodile")) {
+        // Only battles the top 50 pokemon
+        if (opponent.getName().equals("Breloom")) {
           break;
         }
 
@@ -116,18 +115,18 @@ public class Bot {
           pokemon = opponent;
         }
         if (!(pokemon.getName().equals(opponent.getName()))) {
-        attacking = (pokemon.offensivePotential(opponent)); // Max damage pokemon can do to opponent
-        defending = (opponent.offensivePotential(pokemon)); // Max damage opponent can do to pokemon
-        if (defending == 0) defending = 1;
-        if (defending >= pokemon.getSet().getHPStat() && (opponent.getSet().getSpeedStat() > pokemon.getSet().getSpeedStat())) {
-          continue;
-        } 
-        if (defending >= pokemon.getSet().getHPStat() && attacking < opponent.getSet().getHPStat()) {
-          continue;
-        } 
-        value += ((attacking / defending) * opponent.getUsage());
-        //value += (attacking * opponent.getUsage());
-      }
+          attacking = (pokemon.offensivePotential(opponent)); // Max damage pokemon can do to opponent
+          defending = (opponent.offensivePotential(pokemon)); // Max damage opponent can do to pokemon
+          if (defending == 0) defending = 1;
+          if (defending >= pokemon.getSet().getHPStat() && (opponent.getSet().getSpeedStat() > pokemon.getSet().getSpeedStat())) {
+            continue;
+          } 
+          if (defending >= pokemon.getSet().getHPStat() && attacking < opponent.getSet().getHPStat()) {
+            continue;
+          } 
+          value += ((attacking / defending) * opponent.getUsage());
+          //value += (attacking * opponent.getUsage());
+        }
       }
 
       //value += pokemon.statPoints();
